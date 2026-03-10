@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -15,6 +16,7 @@ const navItems = [
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -83,16 +85,22 @@ export const Navbar = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button
-              variant="ghost"
-              className="text-foreground hover:text-primary hover:bg-primary/10"
-              onClick={() => navigate('/login')}
-            >
-              Login
-            </Button>
-            <Button className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25">
-              Get Started
-            </Button>
+            {user ? (
+              <Button
+                onClick={() => navigate('/profile')}
+                className="w-10 h-10 rounded-full bg-gradient-primary hover:opacity-90 text-primary-foreground flex items-center justify-center p-0 shadow-lg shadow-primary/25"
+              >
+                <User size={20} />
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25"
+                onClick={() => navigate('/login')}
+              >
+                Login
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -125,19 +133,27 @@ export const Navbar = () => {
               </a>
             ))}
             <div className="flex gap-3 pt-4">
-              <Button
-                variant="outline"
-                className="flex-1 border-border hover:bg-muted"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  navigate('/login');
-                }}
-              >
-                Login
-              </Button>
-              <Button className="flex-1 bg-gradient-primary text-primary-foreground">
-                Get Started
-              </Button>
+              {user ? (
+                <Button
+                  className="flex-1 bg-gradient-primary text-primary-foreground"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/profile');
+                  }}
+                >
+                  <User size={18} className="mr-2" /> Profile
+                </Button>
+              ) : (
+                <Button
+                  className="flex-1 bg-gradient-primary text-primary-foreground"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/login');
+                  }}
+                >
+                  Login
+                </Button>
+              )}
             </div>
           </div>
         </motion.div>
