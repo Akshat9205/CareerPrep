@@ -11,7 +11,9 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Sparkles
+  Sparkles,
+  Target,
+  TrendingUp
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +32,8 @@ const menuItems = [
   { name: 'Learning Center', icon: BookOpen, path: '/learning' },
   { name: 'Mock Interview', icon: PlayCircle, path: '/mock-interview' },
   { name: 'Resume AI', icon: FileText, path: '/resume-builder' },
+  { name: 'Resume Analysis', icon: Target, path: '/resume-analysis' },
+  { name: 'Career Roadmap', icon: TrendingUp, path: '/roadmap' },
   { name: 'Settings', icon: Settings, path: '/settings' },
   { name: 'Job Tracker', icon: Briefcase, path: '/jobs' },
 ];

@@ -1,11 +1,33 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads', 'resumes');
+const avatarsDir = path.join(__dirname, 'uploads', 'avatars');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Created uploads/resumes directory');
+}
+if (!fs.existsSync(avatarsDir)) {
+  fs.mkdirSync(avatarsDir, { recursive: true });
+  console.log('📁 Created uploads/avatars directory');
+}
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Company model must be imported before seeding
+const Company = require('./models/Company');
 
 // MongoDB Connection
 const MONGO_URI = 'mongodb://127.0.0.1:27017/CareerPrep';
@@ -14,13 +36,59 @@ mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 10000,
   connectTimeoutMS: 10000,
 })
-  .then(() => console.log('✅ Connected to MongoDB - CareerPrep database'))
+  .then(async () => {
+    console.log('✅ Connected to MongoDB - CareerPrep database');
+    // Auto-seed companies if none exist
+    const { seedCompanies } = require('./seed/companyData');
+    const companyCount = await Company.countDocuments();
+    if (companyCount === 0) {
+      console.log('🌱 No companies found, seeding...');
+      await seedCompanies();
+    } else {
+      console.log(`📊 ${companyCount} companies already in database`);
+    }
+  })
   .catch(err => console.error('❌ MongoDB connection error:', err.message));
 
 const User = require('./models/userModel');
 const Module = require('./models/moduleModel');
 const Contact = require('./models/contactModel');
 const Interview = require('./models/interviewModel');
+
+// Resume Analysis Routes
+const resumeAnalysisRoutes = require('./routes/resumeAnalysis');
+app.use('/api/resume', resumeAnalysisRoutes);
+
+// Company Routes (accessible at /api/companies)
+app.get('/api/companies', async (req, res) => {
+  try {
+    const companies = await Company.find({ isActive: true })
+      .select('name logo industry website requirements interviewProcess culture brandColor');
+    res.json({ success: true, data: companies });
+  } catch (error) {
+    console.error('Get companies error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch companies' });
+  }
+});
+
+app.get('/api/companies/:id', async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.id);
+    if (!company) {
+      return res.status(404).json({ success: false, message: 'Company not found' });
+    }
+    res.json({ success: true, data: company });
+  } catch (error) {
+    console.error('Get company error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch company' });
+  }
+});
+
+// Top-level Roadmap Routes (frontend calls /api/roadmap directly)
+const { generateRoadmap, getRoadmap } = require('./controllers/resumeAnalysisController');
+const { authenticate } = require('./middleware/auth');
+app.post('/api/roadmap', authenticate, generateRoadmap);
+app.get('/api/roadmap/:userId', authenticate, getRoadmap);
 
 // ─── Seed hardcoded modules into DB (called once from Admin) ─────────────────
 app.post('/api/modules/init', async (req, res) => {
@@ -115,10 +183,10 @@ app.post('/api/users/sync', async (req, res) => {
     // unless it's explicitly provided (not during auto-sync) or it's a new valid URL.
     if (photoURL) {
       const existingPhoto = existingUser?.photoURL || "";
-      
-      // If we have an existing long photo and the new one is significantly shorter,
-      // it's likely a sync from Firebase's limited profile, so we ignore it.
-      if (!(existingPhoto.length > 1000 && photoURL.length < 500)) {
+      const isHostedAvatar = photoURL.startsWith('http') && photoURL.includes('/uploads/avatars/');
+      const isExplicitProfilePhoto = photoURL.startsWith('data:') || isHostedAvatar;
+
+      if (isExplicitProfilePhoto || !(existingPhoto.length > 1000 && photoURL.length < 500)) {
         updateData.photoURL = photoURL;
       }
     }
@@ -241,6 +309,67 @@ app.get('/api/users/:uid', async (req, res) => {
     console.error('Error fetching user:', error.message);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// Upload profile avatar
+const avatarStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, avatarsDir),
+  filename: (req, file, cb) => {
+    const uid = req.body.uid || 'user';
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    cb(null, `${uid}-${Date.now()}${ext}`);
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Only JPG, PNG, WEBP or GIF images are allowed'));
+  }
+});
+
+app.post('/api/users/avatar', (req, res) => {
+  avatarUpload.single('avatar')(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Upload failed' });
+    }
+
+    try {
+      const { uid, email } = req.body;
+      if (!uid || !req.file) {
+        return res.status(400).json({ success: false, message: 'UID and avatar file are required' });
+      }
+
+      const photoURL = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
+
+      let user = await User.findOneAndUpdate(
+        { uid },
+        { $set: { photoURL } },
+        { returnDocument: 'after' }
+      );
+
+      if (!user && email) {
+        user = await User.findOneAndUpdate(
+          { email },
+          { $set: { uid, photoURL } },
+          { returnDocument: 'after' }
+        );
+      }
+
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      res.status(200).json({ success: true, photoURL, user });
+    } catch (error) {
+      console.error('Avatar upload error:', error.message);
+      res.status(500).json({ success: false, message: 'Failed to upload avatar' });
+    }
+  });
 });
 
 // Contact form submission

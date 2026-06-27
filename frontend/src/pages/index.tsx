@@ -3,7 +3,9 @@ import { useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
 import { Roles } from '@/components/Roles';
+import { HowItWorks } from '@/components/HowItWorks';
 import { DashboardPreview } from '@/components/DashboardPreview';
+import { Testimonials } from '@/components/Testimonials';
 import { CTA } from '@/components/CTA';
 import { Footer } from '@/components/Footer';
 
@@ -32,7 +34,9 @@ const Index = () => {
       <Navbar />
       <Hero />
       <Roles />
+      <HowItWorks />
       <DashboardPreview />
+      <Testimonials />
       <CTA />
       <Footer />
     </div>

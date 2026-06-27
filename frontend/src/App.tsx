@@ -27,6 +27,9 @@ import FeaturesPage from "./pages/FeaturesPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import ResumeAI from "./pages/ResumeAI";
 import JobTracker from "./pages/JobTracker";
+import ResumeAnalysis from "./pages/ResumeAnalysis";
+import Roadmap from "./pages/Roadmap";
+import HelpPage from "./pages/HelpPage";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +63,7 @@ const App = () => (
             <Route path="/features" element={<FeaturesPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/help" element={<HelpPage />} />
             <Route path="/login-choice" element={<LoginChoice />} />
             
             {/* User Authentication Routes */}
@@ -87,6 +91,16 @@ const App = () => (
             <Route path="/jobs" element={
               <ProtectedRoute>
                 <JobTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/resume-analysis" element={
+              <ProtectedRoute>
+                <ResumeAnalysis />
+              </ProtectedRoute>
+            } />
+            <Route path="/roadmap" element={
+              <ProtectedRoute>
+                <Roadmap />
               </ProtectedRoute>
             } />
             <Route path="/interview" element={

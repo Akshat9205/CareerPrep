@@ -95,36 +95,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserProfile = async (displayName: string, photoURL?: string, bio?: string) => {
     if (!auth.currentUser) throw new Error("No user logged in");
-    const isLongURL = photoURL && photoURL.length > 2000;
-    
+
+    const safePhotoURL = photoURL?.startsWith('data:') ? undefined : photoURL;
+
     await updateProfile(auth.currentUser, {
       displayName,
-      photoURL: isLongURL ? auth.currentUser.photoURL : photoURL
+      ...(safePhotoURL ? { photoURL: safePhotoURL } : {})
     });
 
-    // Sync with MongoDB after update (Always sync full URL/Base64 to MongoDB)
-    try {
-      await fetch('http://localhost:5000/api/users/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uid: auth.currentUser.uid,
-          email: auth.currentUser.email,
-          displayName,
-          photoURL,
-          bio,
-          authProvider: auth.currentUser.providerData[0]?.providerId || 'email'
-        })
-      });
-    } catch (e) {
-      console.error("Failed to sync profile update:", e);
+    const syncRes = await fetch('http://localhost:5000/api/users/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid: auth.currentUser.uid,
+        email: auth.currentUser.email,
+        displayName,
+        photoURL: photoURL || auth.currentUser.photoURL,
+        bio,
+        authProvider: auth.currentUser.providerData[0]?.providerId || 'email'
+      })
+    });
+
+    const syncData = await syncRes.json();
+    if (!syncRes.ok || !syncData.success) {
+      throw new Error(syncData.error || syncData.message || 'Failed to save profile');
     }
 
-    // Trigger re-render by updating user state with local data
-    setUser({ 
-      ...auth.currentUser, 
-      displayName, 
-      photoURL: photoURL || auth.currentUser.photoURL 
+    const savedPhotoURL = syncData.user?.photoURL || photoURL || auth.currentUser.photoURL || '';
+
+    setUser({
+      ...auth.currentUser,
+      displayName,
+      photoURL: savedPhotoURL
     } as User);
   };
 

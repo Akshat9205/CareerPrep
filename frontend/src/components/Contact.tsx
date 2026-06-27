@@ -7,53 +7,13 @@ import { toast } from 'sonner';
 const teamContacts = [
   {
     name: 'Akshat Agarwal',
-    role: 'Full Stack Lead',
-    email: 'akshat@careerprep.dev',
-    phone: '+91 87654 32109',
+    role: 'Founder & Full Stack Developer',
+    email: 'agakshat112005@gmail.com',
+    phone: '+91 87558 27155',
     github: '#',
     linkedin: '#',
     avatar: 'AA',
     color: 'from-green-500 to-teal-500',
-  },
-  {
-    name: 'Abhinav Tripathi',
-    role: 'Backend Developer',
-    email: 'abhinav@careerprep.dev',
-    phone: '+91 98765 43210',
-    github: '#',
-    linkedin: '#',
-    avatar: 'AT',
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
-    name: 'Ishita Ranjan',
-    role: 'Frontend Developer',
-    email: 'ishita@careerprep.dev',
-    phone: '+91 91234 56789',
-    github: '#',
-    linkedin: '#',
-    avatar: 'IR',
-    color: 'from-purple-500 to-pink-500',
-  },
-  {
-    name: 'Aditya Verma',
-    role: 'UI/UX & Resume Module',
-    email: 'adityav@careerprep.dev',
-    phone: '+91 99887 76655',
-    github: '#',
-    linkedin: '#',
-    avatar: 'AV',
-    color: 'from-orange-500 to-yellow-500',
-  },
-  {
-    name: 'Aditya',
-    role: 'Full stack developer',
-    email: 'aditya@careerprep.dev',
-    phone: '+91 93456 78901',
-    github: '#',
-    linkedin: '#',
-    avatar: 'AD',
-    color: 'from-rose-500 to-red-500',
   },
 ];
 
@@ -61,19 +21,19 @@ const contactInfo = [
   {
     icon: Mail,
     label: 'Email Us',
-    value: 'support@careerprep.dev',
-    href: 'mailto:support@careerprep.dev',
+    value: 'agakshat112005@gmail.com',
+    href: 'mailto:agakshat112005@gmail.com',
   },
   {
     icon: Phone,
     label: 'Call Us',
-    value: '+91 98765 43210',
-    href: 'tel:+919876543210',
+    value: '+91 8755827155',
+    href: 'tel:+8755827155',
   },
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Pune, Maharashtra, India',
+    value: 'Agra, UttarPradesh, India',
     href: '#',
   },
 ];
@@ -321,8 +281,8 @@ export const Contact = () => {
               transition={{ duration: 0.5 }}
               className="mb-8 p-4 rounded-2xl bg-gradient-to-r from-green-500/5 to-transparent border border-green-500/10"
             >
-              <h3 className="text-2xl font-bold mb-2">Meet the Team</h3>
-              <p className="text-muted-foreground text-sm">4 developers building CareerPrep. Reach out to any of us directly.</p>
+              <h3 className="text-2xl font-bold mb-2">Contact the Founder</h3>
+              <p className="text-muted-foreground text-sm">Reach out directly for any queries or collaboration opportunities.</p>
             </motion.div>
 
             <div className="space-y-4">

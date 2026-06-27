@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { motion } from 'framer-motion';
-import { BookOpen, Mic, FileText, Target, BarChart, Building } from 'lucide-react';
+import { BookOpen, Mic, FileText, Target, BarChart, Building, ArrowRight, Play } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
+import { useNavigate } from 'react-router-dom';
 
 interface Feature {
   label: string;
@@ -11,21 +12,24 @@ interface Feature {
   color: number;
   desc: string;
   icon: any;
+  route?: string;
 }
 
 const featuresData: Feature[] = [
-  { label: "ENGLISH MODULES", icon: BookOpen, pos: [-5, 0, -2], color: 0x6e38f7, desc: "Master business English with AI-powered lessons tailored to your professional goals." },
-  { label: "INTERVIEW PREP", icon: Mic, pos: [0, 0, -2], color: 0x9d50bb, desc: "Practice with realistic mock interviews and get instant feedback on your performance." },
-  { label: "ATS CHECKER", icon: FileText, pos: [5, 0, -2], color: 0xbc13fe, desc: "Optimize your resume for applicant tracking systems to ensure you get noticed." },
-  { label: "SKILL MATCHING", icon: Target, pos: [-5, 0, 3.5], color: 0xbc13fe, desc: "Get matched with internships that align perfectly with your technical skill set." },
-  { label: "PROGRESS ANALYTICS", icon: BarChart, pos: [0, 0, 3.5], color: 0x9d50bb, desc: "Track your improvement with detailed analytics across all learning modules." },
-  { label: "COMPANY RESOURCES", icon: Building, pos: [5, 0, 3.5], color: 0x6e38f7, desc: "Access company-specific preparation materials and insider interview tips." }
+  { label: "ENGLISH MODULES", icon: BookOpen, pos: [-5, 0, -2], color: 0x6e38f7, desc: "Master business English with AI-powered lessons tailored to your professional goals.", route: "/learning" },
+  { label: "INTERVIEW PREP", icon: Mic, pos: [0, 0, -2], color: 0x9d50bb, desc: "Practice with realistic mock interviews and get instant feedback on your performance.", route: "/mock-interview" },
+  { label: "ATS CHECKER", icon: FileText, pos: [5, 0, -2], color: 0xbc13fe, desc: "Optimize your resume for applicant tracking systems to ensure you get noticed.", route: "/resume-ai" },
+  { label: "SKILL MATCHING", icon: Target, pos: [-5, 0, 3.5], color: 0xbc13fe, desc: "Get matched with internships that align perfectly with your technical skill set.", route: "/dashboard" },
+  { label: "PROGRESS ANALYTICS", icon: BarChart, pos: [0, 0, 3.5], color: 0x9d50bb, desc: "Track your improvement with detailed analytics across all learning modules.", route: "/dashboard" },
+  { label: "COMPANY RESOURCES", icon: Building, pos: [5, 0, 3.5], color: 0x6e38f7, desc: "Access company-specific preparation materials and insider interview tips.", route: "/learning" }
 ];
 
 export const Features: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
+  const navigate = useNavigate();
+  const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -216,16 +220,32 @@ export const Features: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="p-8 transition-all duration-300 border shadow-lg glass-card hover:-translate-y-2 rounded-3xl border-border/50 hover:border-primary/50 group"
+              onClick={() => feature.route && navigate(feature.route)}
+              onMouseEnter={() => setHoveredFeature(feature.label)}
+              onMouseLeave={() => setHoveredFeature(null)}
+              className="p-8 transition-all duration-300 border shadow-lg glass-card hover:-translate-y-2 rounded-3xl border-border/50 hover:border-primary/50 group cursor-pointer relative overflow-hidden"
             >
-              <div className="flex items-center justify-center mb-6 transition-transform duration-300 w-14 h-14 rounded-2xl bg-primary/10 group-hover:scale-110">
-                <feature.icon className="w-7 h-7 text-primary" />
-              </div>
-              <h3 className="mb-3 text-xl font-bold text-foreground">{feature.label}</h3>
-              <p className="leading-relaxed text-muted-foreground">{feature.desc}</p>
+              {/* Hover gradient effect */}
+              <div className={`absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
               
-              <div className="flex items-center mt-6 text-sm font-medium transition-opacity duration-300 -translate-x-2 opacity-0 text-primary group-hover:opacity-100 group-hover:translate-x-0">
-                Explore feature <span className="ml-1">→</span>
+              <div className="relative z-10">
+                <div className="flex items-center justify-center mb-6 transition-transform duration-300 w-14 h-14 rounded-2xl bg-primary/10 group-hover:scale-110 group-hover:bg-primary/20">
+                  <feature.icon className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="mb-3 text-xl font-bold text-foreground">{feature.label}</h3>
+                <p className="leading-relaxed text-muted-foreground">{feature.desc}</p>
+                
+                <div className={`flex items-center mt-6 text-sm font-medium transition-all duration-300 text-primary ${hoveredFeature === feature.label ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`}>
+                  {feature.route ? (
+                    <>
+                      Try it now <ArrowRight className="ml-1 w-4 h-4" />
+                    </>
+                  ) : (
+                    <>
+                      Coming soon <Play className="ml-1 w-4 h-4" />
+                    </>
+                  )}
+                </div>
               </div>
             </motion.div>
           ))}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LayoutDashboard, BookOpen, LogOut, ChevronDown, Mail, Home, Sparkles, Info, Sun, Moon } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, BookOpen, LogOut, ChevronDown, Mail, Home, Sparkles, Info, Sun, Moon, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -55,7 +55,7 @@ export const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border' : 'bg-transparent'
+        isScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border' : 'bg-background/60 backdrop-blur-md border-b border-border/50'
       }`}
     >
       <div className="container-custom">
@@ -69,15 +69,49 @@ export const Navbar = () => {
             <span className="font-bold text-xl text-foreground">CareerPrep</span>
           </a>
 
+          {/* Center Navigation Links */}
+          <div className="hidden md:flex items-center gap-1">
+            <button
+              onClick={() => navigate('/')}
+              className="px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              Home
+            </button>
+            <button
+              onClick={() => navigate('/features')}
+              className="px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              Features
+            </button>
+            <button
+              onClick={() => navigate('/about-us')}
+              className="px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              About Us
+            </button>
+            <button
+              onClick={() => navigate('/contact')}
+              className="px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              Contact
+            </button>
+            <button
+              onClick={() => navigate('/help')}
+              className="px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+            >
+              Help
+            </button>
+          </div>
 
           {/* Right side */}
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted text-foreground transition-colors mr-2"
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted text-foreground transition-colors"
             >
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+
             {user ? (
               /* Profile dropdown */
               <div className="relative" ref={profileRef}>
@@ -118,9 +152,6 @@ export const Navbar = () => {
                           { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
                           { label: 'Learning', icon: BookOpen, path: '/learning' },
                           { label: 'Profile', icon: User, path: '/profile' },
-                          { label: 'Features', icon: Sparkles, path: '/features' },
-                          { label: 'About Us', icon: Info, path: '/about-us' },
-                          { label: 'Contact', icon: Mail, path: '/contact' },
                         ].map((item) => (
                           <button
                             key={item.label}
@@ -193,15 +224,52 @@ export const Navbar = () => {
           className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border"
         >
           <div className="container-custom py-4 space-y-2">
+            {/* Navigation Links */}
+            <div className="space-y-2">
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); navigate('/'); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                <Home size={16} className="text-muted-foreground" />
+                Home
+              </button>
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); navigate('/features'); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                <Sparkles size={16} className="text-muted-foreground" />
+                Features
+              </button>
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); navigate('/about-us'); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                <Info size={16} className="text-muted-foreground" />
+                About Us
+              </button>
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); navigate('/contact'); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                <Mail size={16} className="text-muted-foreground" />
+                Contact
+              </button>
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); navigate('/help'); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-foreground hover:bg-muted rounded-lg transition-colors"
+              >
+                <HelpCircle size={16} className="text-muted-foreground" />
+                Help
+              </button>
+            </div>
+
             {user && (
               <>
+                <div className="border-t border-border/60 my-2"></div>
                 {[
                   { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
                   { label: 'Learning', icon: BookOpen, path: '/learning' },
                   { label: 'Profile', icon: User, path: '/profile' },
-                  { label: 'Features', icon: Sparkles, path: '/features' },
-                  { label: 'About Us', icon: Info, path: '/about-us' },
-                  { label: 'Contact', icon: Mail, path: '/contact' },
                 ].map((item) => (
                   <button
                     key={item.label}
