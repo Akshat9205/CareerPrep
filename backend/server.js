@@ -7,7 +7,16 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://career-prep-sigma-eight.vercel.app",
+      "http://localhost:5173",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -26,11 +35,16 @@ if (!fs.existsSync(avatarsDir)) {
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is healthy' });
+});
+
 // Company model must be imported before seeding
 const Company = require('./models/Company');
 
 // MongoDB Connection
-const MONGO_URI = 'mongodb://127.0.0.1:27017/CareerPrep';
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/CareerPrep';
 
 mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 10000,
