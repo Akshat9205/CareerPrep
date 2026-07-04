@@ -12,6 +12,7 @@ import { Navbar } from '@/components/Navbar';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
 
 declare global {
   interface Window {
@@ -172,7 +173,7 @@ const ModuleLesson = () => {
 
   const fetchProgress = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/progress/${user?.uid}/${moduleId}`);
+      const response = await fetch(`${API_URL}/api/progress/${user?.uid}/${moduleId}`);
       const data = await response.json();
       if (data.success && data.progress) {
         setCompletedLessons(data.progress.completedLessons || []);
@@ -185,7 +186,7 @@ const ModuleLesson = () => {
   const saveProgress = async (index: number, count: number) => {
     if (!user || !moduleId) return;
     try {
-      await fetch('http://localhost:5000/api/progress/update', {
+      await fetch(`${API_URL}/api/progress/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

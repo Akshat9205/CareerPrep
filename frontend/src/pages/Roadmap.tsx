@@ -8,13 +8,14 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL } from '@/lib/api';
 
 interface Task {
   task: string;
   priority: 'high' | 'medium' | 'low';
   category: 'skill' | 'project' | 'certification' | 'practice';
   estimatedTime: string;
-  resources: { type: string; title: string; link: string; platform: string }[];
+  resources: { type: string; title: string; link: string; duration: string }[];
   completed: boolean;
   completedAt?: Date;
 }
@@ -130,7 +131,7 @@ const Roadmap = () => {
       const authHeaders = await getAuthHeaders();
       const userId = user?.uid || localStorage.getItem('userId');
       if (!userId) { setFetching(false); return; }
-      const response = await fetch(`http://localhost:5000/api/roadmap/${userId}`, {
+      const response = await fetch(`${API_URL}/api/roadmap/${userId}`, {
         headers: authHeaders
       });
       const data = await response.json();
@@ -468,7 +469,7 @@ const Roadmap = () => {
                                                 >
                                                   <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0" />
                                                   <span className="text-foreground text-xs truncate">{resource.title}</span>
-                                                  <span className="text-muted-foreground text-xs ml-auto shrink-0">{resource.platform}</span>
+                                                  <span className="text-muted-foreground text-xs ml-auto shrink-0">{resource.type}</span>
                                                 </a>
                                               ))}
                                             </div>
@@ -537,7 +538,7 @@ const Roadmap = () => {
                               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs text-foreground truncate">{res.title}</p>
-                                <p className="text-[10px] text-muted-foreground">{res.platform} · {res.duration}</p>
+                                <p className="text-[10px] text-muted-foreground">{res.type} · {res.duration}</p>
                               </div>
                             </a>
                           ))}

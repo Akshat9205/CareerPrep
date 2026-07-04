@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Github, Linkedin, Send, MessageSquare, User, AtSign, FileText, Clock, CheckCircle, XCircle, AlertCircle, Twitter, Instagram, Youtube, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
 
 const teamContacts = [
   {
@@ -77,7 +78,7 @@ export const Contact = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:5000/api/contact', {
+      const response = await fetch(`${API_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

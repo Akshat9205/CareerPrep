@@ -10,6 +10,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
 
 interface Company {
   _id: string;
@@ -153,7 +154,7 @@ const ResumeAnalysis = () => {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/companies');
+      const response = await fetch(`${API_URL}/api/companies`);
       const data = await response.json();
       if (data.success) setCompanies(data.data);
     } catch (err) {
@@ -224,7 +225,7 @@ const ResumeAnalysis = () => {
       formData.append('resume', file);
       setScanStep(1);
 
-      const uploadResponse = await fetch('http://localhost:5000/api/resume/upload', {
+      const uploadResponse = await fetch(`${API_URL}/api/resume/upload`, {
         method: 'POST',
         headers: authHeaders,
         body: formData
@@ -235,7 +236,7 @@ const ResumeAnalysis = () => {
       setScanStep(2);
       
       // Step 2-4: Analyze
-      const analyzeResponse = await fetch('http://localhost:5000/api/resume/analyze', {
+      const analyzeResponse = await fetch(`${API_URL}/api/resume/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ companyId: selectedCompany._id, resumeId: uploadData.data.resumeId })
@@ -274,7 +275,7 @@ const ResumeAnalysis = () => {
     setError(null);
     try {
       const authHeaders = await getAuthHeaders();
-      const response = await fetch('http://localhost:5000/api/roadmap', {
+      const response = await fetch(`${API_URL}/api/roadmap`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ resumeAnalysisId: analysisResult.analysisId })

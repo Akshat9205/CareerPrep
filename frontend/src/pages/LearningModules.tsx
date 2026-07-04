@@ -7,6 +7,7 @@ import { Navbar } from '@/components/Navbar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL } from '@/lib/api';
 
 interface Module {
   title: string;
@@ -478,7 +479,7 @@ const LearningModules = () => {
 
   const fetchPublishedModules = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/modules');
+      const res = await fetch(`${API_URL}/api/modules`);
       const data = await res.json();
       if (data.success && data.modules.length > 0) {
         const publishedTitles = new Set(data.modules.map((m: any) => m.title));
@@ -489,7 +490,7 @@ const LearningModules = () => {
 
   const fetchUserProgress = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/progress/${user?.uid}`);
+      const response = await fetch(`${API_URL}/api/progress/${user?.uid}`);
       const data = await response.json();
       if (data.success) setUserProgress(data.progress || []);
     } catch (error) {

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { API_URL } from '@/lib/api';
 
 interface Activity {
   id: string;
@@ -152,12 +153,12 @@ const Profile = () => {
 
       const authHeaders = await getAuthHeaders();
       const [progressRes, userRes, interviewRes, analysisRes, roadmapRes, modulesRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/progress/${user.uid}`),
-        fetch(`http://localhost:5000/api/users/${user.uid}`),
-        fetch(`http://localhost:5000/api/interviews/${user.uid}`),
-        fetch(`http://localhost:5000/api/resume/analysis/${user.uid}`, { headers: authHeaders }),
-        fetch(`http://localhost:5000/api/roadmap/${user.uid}`, { headers: authHeaders }),
-        fetch(`http://localhost:5000/api/modules`)
+        fetch(`${API_URL}/api/progress/${user.uid}`),
+        fetch(`${API_URL}/api/users/${user.uid}`),
+        fetch(`${API_URL}/api/interviews/${user.uid}`),
+        fetch(`${API_URL}/api/resume/analysis/${user.uid}`, { headers: authHeaders }),
+        fetch(`${API_URL}/api/roadmap/${user.uid}`, { headers: authHeaders }),
+        fetch(`${API_URL}/api/modules`)
       ]);
 
       const [progressData, userData, interviewData, analysisData, roadmapData, modulesData] = await Promise.all([
@@ -388,7 +389,7 @@ const Profile = () => {
         formData.append('uid', user.uid);
         formData.append('email', user.email || '');
 
-        const uploadRes = await fetch('http://localhost:5000/api/users/avatar', {
+        const uploadRes = await fetch(`${API_URL}/api/users/avatar`, {
           method: 'POST',
           body: formData
         });

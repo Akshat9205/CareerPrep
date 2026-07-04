@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL } from '@/lib/api';
 import { 
   Mic, 
   MicOff, 
@@ -310,7 +311,7 @@ const InterviewScreen = () => {
               const totalScore = updatedAnswers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0);
               const avgScore = Math.round(totalScore / updatedAnswers.length);
               
-              await fetch('http://localhost:5000/api/interviews', {
+              await fetch(`${API_URL}/api/interviews`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -11,6 +11,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { API_URL } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (user) {
         // Synchronize user state with MongoDB
         try {
-          const syncRes = await fetch('http://localhost:5000/api/users/sync', {
+          const syncRes = await fetch(`${API_URL}/api/users/sync`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -103,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...(safePhotoURL ? { photoURL: safePhotoURL } : {})
     });
 
-    const syncRes = await fetch('http://localhost:5000/api/users/sync', {
+    const syncRes = await fetch(`${API_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

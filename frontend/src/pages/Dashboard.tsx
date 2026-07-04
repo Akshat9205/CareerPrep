@@ -10,6 +10,7 @@ import {
   Target, TrendingUp, PlayCircle, User, Sparkles,
   ChevronRight, BarChart2, CheckCircle2
 } from 'lucide-react';
+import { API_URL } from '@/lib/api';
 
 const quickActions = [
   {
@@ -71,7 +72,7 @@ const Dashboard = () => {
 
   const fetchInterviewStats = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/interviews/${user?.uid}`);
+      const response = await fetch(`${API_URL}/api/interviews/${user?.uid}`);
       const data = await response.json();
       if (data.success && data.interviews) {
         setInterviewsCount(data.interviews.length);
@@ -85,7 +86,7 @@ const Dashboard = () => {
     try {
       // Assuming we can get current user details from an endpoint or just from the sync response
       // For now, let's add a simple fetch if there's a GET /api/users/:uid
-      const response = await fetch(`http://localhost:5000/api/users/${user?.uid}`);
+      const response = await fetch(`${API_URL}/api/users/${user?.uid}`);
       const data = await response.json();
       if (data.success && data.user) {
         setStreak(data.user.streak || 1);
@@ -98,7 +99,7 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/progress/${user?.uid}`);
+      const response = await fetch(`${API_URL}/api/progress/${user?.uid}`);
       const data = await response.json();
       if (data.success && data.progress) {
         setUserProgress(data.progress);
