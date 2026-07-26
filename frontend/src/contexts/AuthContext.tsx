@@ -7,10 +7,12 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   UserCredential,
   updateProfile
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, getFirebaseErrorMessage } from '@/lib/firebase';
 import { API_URL } from '@/lib/api';
 
 interface AuthContextType {
@@ -38,6 +40,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Process redirect sign-in result when returning to the app
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          console.log("Successfully logged in via redirect", result.user);
+        }
+      })
+      .catch((error) => {
+        console.error("Firebase Redirect sign-in error:", error);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
@@ -77,17 +90,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return unsubscribe;
   }, []);
 
-  const signIn = (email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const signIn = async (email: string, password: string) => {
+    try {
+      return await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      throw new Error(getFirebaseErrorMessage(error));
+    }
   };
 
-  const signUp = (email: string, password: string) => {
-    return createUserWithEmailAndPassword(auth, email, password);
+  const signUp = async (email: string, password: string) => {
+    try {
+      return await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      throw new Error(getFirebaseErrorMessage(error));
+    }
   };
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    try {
+      // Attempt popup sign-in
+      return await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      const code = error.code || '';
+      const isCoopOrPopupBlock = 
+        code.includes('auth/popup-blocked') || 
+        code.includes('auth/popup-closed-by-user') || 
+        code.includes('auth/cancelled-popup-request') ||
+        error.message?.includes('Cross-Origin-Opener-Policy') ||
+        error.message?.includes('closed');
+
+      if (isCoopOrPopupBlock) {
+        console.warn("Popup blocked or COOP header issue. Falling back to redirect...");
+        await signInWithRedirect(auth, provider);
+        return null as any;
+      }
+      
+      throw new Error(getFirebaseErrorMessage(error));
+    }
   };
 
   const logout = () => {
